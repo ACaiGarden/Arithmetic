@@ -27,8 +27,10 @@ class BiTree():
             return ShowFraction(root.number)
         elif root.symbol == "+" or root.symbol == "-":
             if root.rtree.symbol == "+" or root.rtree.symbol == "-":
-                return self.show(root.ltree) + " " + root.symbol + " ( " + self.show(root.rtree) + " )"
-            return self.show(root.ltree) + " " + root.symbol + " " + self.show(root.rtree)
+                return self.show(root.ltree) + " " + root.symbol + " ( " + \
+                    self.show(root.rtree) + " )"
+            return self.show(root.ltree) + " " + root.symbol + " " + \
+                self.show(root.rtree)
         else:
             if root.ltree.symbol == "+" or root.ltree.symbol == "-":
                 i = "( " + self.show(root.ltree) + " )"
@@ -50,14 +52,8 @@ class BiTree():
             return self.Count(root.ltree) - self.Count(root.rtree)
         elif root.symbol == "*":
             return self.Count(root.ltree) * self.Count(root.rtree)
-        elif root.symbol == "&":
+        else:
             return self.Count(root.ltree) / self.Count(root.rtree)
-
-def getFraction():
-    pass
-
-def getBiTree():
-    pass
 
 def fitBiTree(root):
     if root.symbol == "/":
@@ -83,20 +79,74 @@ def fitBiTree(root):
         a = fitBiTree(root.ltree) / fitBiTree(root.rtree)
         return a
 
+#=====================以下为拓展功能模块=======================================
+
+def StrToFraction(num):#将字符串格式的分数转换为Fraction
+    numlist = num.split("'")
+    if len(numlist) == 1:
+        return Fraction(numlist[0])
+    else:
+        return Fraction(numlist[1]) + int(numlist[0])
 
 
+def EleS(element, stack1, stack2):#此处需要递归调用
+    if stack1:
+        if stack1[-1] == ")" or stack1[-1] == "-" or stack1[-1] == "+":
+            stack1.append(element)
+        else:
+            stack2.append(stack1.pop())
+            EleS(element, stack1, stack2)
+    else:
+        stack1.append(element)
 
-if __name__ == '__main__':
-    #test
-    n0 = Node(num = Fraction(1, 2), sym = "/")
-    n1 = Node(num = Fraction(7, 3), sym = "/")
-    n2 = Node(num = Fraction(1, 1), sym = "/")
-    n3 = Node(num = Fraction(4, 5), sym = "/")
+def StrToExpress(express):#
+    elelist = express.split()
+    elelist.reverse()
+    s1, s2 = [], []
+    for ele in elelist:
+        if ele == "-" or ele == "+":
+            EleS(ele, s1, s2)
+        elif ele == "*" or ele == "÷":
+            s1.append(ele)
+        elif ele == ")":
+            s1.append(ele)
+        elif ele == "(":
+            while s1[-1] != ")":
+                s2.append(s1.pop())
+            del s1[-1]
+        else:
+            s2.append(ele)
+    while s1:
+        s2.append(s1.pop())
+    return s2
 
-    n4 = Node("&", n0, n1)
-    n5 = Node("*",n2,n3)
-    root = Node("-", n4, n2)
-    tree = BiTree(root)
-    print(tree.show(tree.root) + " = " + ShowFraction(tree.Count(tree.root)))
-    fitBiTree(root)
-    print(tree.show(tree.root) + " = " + ShowFraction(tree.Count(tree.root)))
+def PreToBiTree(prefixlist):
+    if prefixlist[-1] == '+' or prefixlist[-1] == '-' or prefixlist[-1] == '*'\
+            or prefixlist[-1] == '÷':
+        Pnode = Node(prefixlist.pop())
+        Pnode.ltree = PreToBiTree(prefixlist)
+        Pnode.rtree = PreToBiTree(prefixlist)
+        return Pnode
+    else:
+        return Node('/', num = StrToFraction(prefixlist.pop()))
+
+def Check(expressfile, answerfile):
+    fe = open(expressfile)
+    fa = open(answerfile)
+    express = fe.read().splitlines()
+    answer = fa.read().splitlines()
+    correct, false, i= 0, 0, 0
+    correctlist, falselist = [], []
+    for line, ans in list(zip(express, answer)):
+        i += 1;
+        line1 = line.split(".")
+        ans1 = ans.split(".")
+        tree = BiTree(PreToBiTree(StrToExpress(line1[1])))
+        if tree.Count(tree.root) == StrToFraction(ans1[1]):
+            correct += 1
+            correctlist.append(i)
+        else:
+            false += 1
+            falselist.append(i)
+    print("Correct: " + str(correct) + " " + tuple(correctlist).__str__() + \
+          "\n" + "Wrong: " + str(false) + " " + tuple(falselist).__str__())
