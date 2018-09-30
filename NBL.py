@@ -1,4 +1,4 @@
-# 运算规则，先乘除，后加减.
+# -*- coding: UTF-8 -*-
 def middle_to_after(s):
     """
     中缀表达式转化后缀表达式.
@@ -10,14 +10,14 @@ def middle_to_after(s):
         '+': 1,
         '-': 1,
         '*': 2,
-        '&': 2
+        '÷': 2
     }
 
     expression = []
     ops = []
     ss = s.split(' ')
     for item in ss:
-        if item in ['+', '-', '*', '&']:   # 操作符
+        if item in ['+', '-', '*', '÷']:   # 操作符
             while len(ops) >= 0:
                 if len(ops) == 0:
                     ops.append(item)
@@ -48,5 +48,5 @@ def middle_to_after(s):
     return expression_str
 
 if __name__ == "__main":
-    s = '8/89 & 1\'8/9 * ( 52/97 + 43/87 )'
+    s = '8/89 ÷ 1\'8/9 * ( 52/97 + 43/87 )'
     print(middle_to_after(s))

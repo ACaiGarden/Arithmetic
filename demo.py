@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from fractions import Fraction
 import re
 import random
@@ -18,7 +19,7 @@ class Generate():
         if self.max_num != 0:
             self.NewExpressions()
         elif (self.exercisefile != '') and (self.answerfile != ''):
-            pass
+            Check(self.exercisefile, self.answerfile)
 
     def get_info(self):
         #获取传入参数 -r -n
@@ -47,8 +48,8 @@ class Generate():
 
     def NewExpressions(self):
         # 写入文件
-        fe = open("Exercises.txt", "a")
-        fa = open("Answers.txt", "a")
+        fe = open("Exercises.txt", "a", encoding='UTF-8')
+        fa = open("Answers.txt", "a", encoding='UTF-8')
         for i in range(0, self.topic_num):
             bitree = BiTree(self.generate())
             fa.write(str(i + 1) + ". " + str(ShowFraction(bitree.Count(bitree.root))) + "\n")
@@ -100,7 +101,7 @@ class Generate():
             return self.built_3(type)
 
     def built_1(self, type):
-        sym_list = ['+', '-', '*', '&']
+        sym_list = ['+', '-', '*', '÷']
         symbol = random.sample(sym_list, 1)[0]
         num1 = random.randint(1, self.max_num - 1)
         num2 = random.randint(1, self.max_num - 1)
@@ -114,7 +115,7 @@ class Generate():
         return root
 
     def built_2(self, type):
-        sym_list = ['+', '-', '*', '&']
+        sym_list = ['+', '-', '*', '÷']
         symbol1 = random.sample(sym_list, 1)[0]
 
         lc = self.built_1(type)
@@ -131,7 +132,7 @@ class Generate():
         return root
 
     def built_3(self, type):
-        sym_list = ['+', '-', '*', '&']
+        sym_list = ['+', '-', '*', '÷']
         symbol1 = random.sample(sym_list, 1)[0]
 
         lc = self.built_1(type)

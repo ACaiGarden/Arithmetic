@@ -1,6 +1,7 @@
+# -*- coding: UTF-8 -*-
 from fractions import Fraction
 
-def ShowFraction(f):#将大于1的Fraction数用带分数表示
+def ShowFraction(f):
     if f.numerator <= f.denominator:
         return str(f)
     else:
@@ -11,26 +12,24 @@ def ShowFraction(f):#将大于1的Fraction数用带分数表示
         else:
             return str(a) + '\'' + str(b) + "/" + str(f.denominator)
 
-class Node():#二叉树节点
+class Node():
     def __init__(self, sym, lt = None, rt = None, num = -1):
         self.number = num
         self.symbol = sym
         self.ltree = lt
         self.rtree = rt
 
-class BiTree():#二叉树类
+class BiTree():
     def __init__(self, node):
         self.root = node
 
-    def show(self, root):#用表达式显示二叉树
+    def show(self, root):
         if root.symbol == "/":
             return ShowFraction(root.number)
         elif root.symbol == "+" or root.symbol == "-":
-            if root.rtree.symbol == "+" or root.rtree.symbol == "-":#判优先级
-                return self.show(root.ltree) + " " + root.symbol + " ( " + \
-                    self.show(root.rtree) + " )"
-            return self.show(root.ltree) + " " + root.symbol + " " + \
-                self.show(root.rtree)
+            if root.rtree.symbol == "+" or root.rtree.symbol == "-":
+                return self.show(root.ltree) + " " + root.symbol + " ( " + self.show(root.rtree) + " )"
+            return self.show(root.ltree) + " " + root.symbol + " " + self.show(root.rtree)
         else:
             if root.ltree.symbol == "+" or root.ltree.symbol == "-":
                 i = "( " + self.show(root.ltree) + " )"
@@ -43,7 +42,7 @@ class BiTree():#二叉树类
                 i += self.show(root.rtree)
             return i
 
-    def Count(self, root):#递归计算函数结果
+    def Count(self, root):
         if root.symbol == "/":
             return root.number
         elif root.symbol == "+":
@@ -52,10 +51,16 @@ class BiTree():#二叉树类
             return self.Count(root.ltree) - self.Count(root.rtree)
         elif root.symbol == "*":
             return self.Count(root.ltree) * self.Count(root.rtree)
-        else:
+        elif root.symbol == "÷":
             return self.Count(root.ltree) / self.Count(root.rtree)
 
-def fitBiTree(root):#对新生成的二叉树进行除错
+def getFraction():
+    pass
+
+def getBiTree():
+    pass
+
+def fitBiTree(root):
     if root.symbol == "/":
         return root.number
     elif root.symbol == "+":
@@ -63,18 +68,19 @@ def fitBiTree(root):#对新生成的二叉树进行除错
     elif root.symbol == "*":
         return fitBiTree(root.ltree) * fitBiTree(root.rtree)
     elif root.symbol == "-":
-        a = fitBiTree(root.ltree) - fitBiTree(root.rtree)#若减数大于被减数
-        if a < 0:                                       #则交换左子树和右子树
+        a = fitBiTree(root.ltree) - fitBiTree(root.rtree)
+        if a < 0:
             b = root.ltree
             root.ltree = root.rtree
             root.rtree = b
             a = fitBiTree(root.ltree) - fitBiTree(root.rtree)
         return a
-    else:
-        if fitBiTree(root.ltree) >= fitBiTree(root.rtree):#要求除法的结果是
-            b = root.ltree                              #真分数
+    elif root.symbol == "÷":
+        if fitBiTree(root.ltree) >= fitBiTree(root.rtree):
+            b = root.ltree
             root.ltree = root.rtree
             root.rtree = b
+
         a = fitBiTree(root.ltree) / fitBiTree(root.rtree)
         return a
 
@@ -130,14 +136,14 @@ def PreToBiTree(prefixlist):#将前缀表达式转换为二叉树
         return Node('/', num = StrToFraction(prefixlist.pop()))
 
 def Check(expressfile, answerfile):#主程序
-    fe = open(expressfile)
-    fa = open(answerfile)
+    fe = open(expressfile, encoding='UTF-8')
+    fa = open(answerfile, encoding='UTF-8')
     express = fe.read().splitlines()#按行读取
     answer = fa.read().splitlines()
     correct, false, i= 0, 0, 0#correct为正确题目数,flase为错误数,i是表达式序号
     correctlist, falselist = [], []#用来保存正确和错误题目的序号
     for line, ans in list(zip(express, answer)):
-        i += 1;
+        i += 1
         line1 = line.split(".")#将前面的序号去掉
         ans1 = ans.split(".")
         tree = BiTree(PreToBiTree(StrToExpress(line1[1])))
@@ -149,3 +155,22 @@ def Check(expressfile, answerfile):#主程序
             falselist.append(i)
     print("Correct: " + str(correct) + " " + tuple(correctlist).__str__() + \
           "\n" + "Wrong: " + str(false) + " " + tuple(falselist).__str__())
+
+
+if __name__ == '__main__':
+    #test
+    '''
+    n0 = Node(num = Fraction(1, 2), sym = "/")
+    n1 = Node(num = Fraction(7, 3), sym = "/")
+    n2 = Node(num = Fraction(1, 1), sym = "/")
+    n3 = Node(num = Fraction(4, 5), sym = "/")
+
+    n4 = Node("÷", n0, n1)
+    n5 = Node("*",n2,n3)
+    root = Node("-", n4, n2)
+    tree = BiTree(root)
+    print(tree.show(tree.root) + " = " + ShowFraction(tree.Count(tree.root)))
+    fitBiTree(root)
+    print(tree.show(tree.root) + " = " + ShowFraction(tree.Count(tree.root)))
+    '''
+    #Check('Exercises.txt', 'Answers.txt')
